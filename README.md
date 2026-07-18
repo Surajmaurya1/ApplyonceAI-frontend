@@ -9,7 +9,7 @@ ApplyOnce AI is a secure, privacy-first universal profile parsing and browser fo
 
 ---
 
-## 💡 The Problem We Solve
+##  The Problem We Solve
 
 Job seekers spend hours manually typing the same repetitive information into job application portals (Workable, Greenhouse, Lever, Ashby, BambooHR, etc.). Rigid legacy autofill tools rely on brittle element ID matching, resulting in incomplete fields, broken UI mappings, and leaked data. 
 
@@ -20,7 +20,7 @@ Job seekers spend hours manually typing the same repetitive information into job
 
 ---
 
-## 📌 Architectural Overview
+##  Architectural Overview
 
 ApplyOnce AI uses a decentralized, local-first storage design. Sensitive candidate credentials and resumes are processed in-browser. Staged profile details are retained exclusively within the client container (`chrome.storage.local`), ensuring zero server-side persistence of personal data.
 
@@ -43,7 +43,7 @@ graph TD
 
 ---
 
-## 🎯 Key Features
+##  Key Features
 
 - **LLM-Powered Document Semantic Extraction**: Eliminates rigid resume templates. Upload PDF CVs, execute local PDF text extraction via Web Workers, and compile structured profiles via OpenRouter AI.
 - **Dynamic Field Mapping Engine**: Maps forms dynamically on any domain using label-matching, semantic pattern groupings, and aria attribute checks.
@@ -53,7 +53,7 @@ graph TD
 
 ---
 
-## 📂 Repository Structure
+##  Repository Structure
 
 ```
 applyonce-ai/
@@ -75,7 +75,7 @@ applyonce-ai/
 
 ---
 
-## 🛠️ Installation & Building
+##  Installation & Building
 
 ### Prerequisites
 - Node.js (v18.0.0 or higher)
@@ -102,7 +102,7 @@ This creates `extension/dist/` — the production-ready extension directory.
 
 ---
 
-## 🔌 Chrome Extension Deployment
+##  Chrome Extension Deployment
 
 1. Open **Google Chrome** and navigate to `chrome://extensions/`.
 2. Turn on **Developer mode** using the toggle switch in the upper-right corner.
@@ -112,7 +112,7 @@ This creates `extension/dist/` — the production-ready extension directory.
 
 ---
 
-## 🔒 Security Posture & Privacy Compliance
+##  Security Posture & Privacy Compliance
 
 - **No Central Database Storage**: Personal Identifiable Information (PII) is saved directly in sandbox-isolated browser memory.
 - **TLS Ingestion Security**: Profile parsing is sent securely to OpenRouter API endpoints using HTTPS and payload minimization techniques to prevent leakages.
