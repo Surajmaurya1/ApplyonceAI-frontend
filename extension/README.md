@@ -43,17 +43,17 @@ This creates `extension/dist/` — the loadable extension folder.
 
 ## Features
 
-- 📄 **Resume Upload** — PDF parsing with pdf.js, 5MB max
-- 🤖 **AI Parsing** — Gemini extracts structured profile from resume text
-- 💾 **Local Storage** — Profile saved to `chrome.storage.local` (no server)
-- ✏️ **Profile Editor** — View and edit all fields inline
-- ⚡ **One-click Autofill** — AI maps profile to any job form
-- 🎯 **ATS Support** — Greenhouse, Lever, Ashby, Workable, BambooHR, generic
-- 📤 **Export/Import** — JSON profile backup from options page
+-  **Resume Upload** — PDF parsing with pdf.js, 5MB max
+-  **AI Parsing** — Gemini extracts structured profile from resume text
+-  **Local Storage** — Profile saved to `chrome.storage.local` (no server)
+-  **Profile Editor** — View and edit all fields inline
+-  **One-click Autofill** — AI maps profile to any job form
+-  **ATS Support** — Greenhouse, Lever, Ashby, Workable, BambooHR, generic
+-  **Export/Import** — JSON profile backup from options page
 
 ## Security Note
 
-> **For production:** The Gemini API key is bundled in the extension for this hackathon MVP.
+> **For production:** The Openrouter API key is bundled in the extension for this hackathon MVP.
 > In production, proxy all AI requests through a backend server.
 
 ## Development
