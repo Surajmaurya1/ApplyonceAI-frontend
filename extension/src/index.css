@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #0a0a0b;
+    color: #f4f4f5;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.005em;
+  }
+
+  ::selection {
+    background: rgba(225, 29, 42, 0.35);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(225, 29, 42, 0.5);
+  }
+}
+
+@layer utilities {
+  .text-gradient-red {
+    background: linear-gradient(135deg, #ff4d5a 0%, #e11d2a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glass {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+    border: 1px solid rgba(255,255,255,0.07);
+    backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 0 1px rgba(225,29,42,0.35), 0 10px 40px -10px rgba(225,29,42,0.55);
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2.5s ease-in-out infinite;
+  }
+}

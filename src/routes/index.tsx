@@ -100,20 +100,12 @@ function Counter({ to, suffix = "", duration = 1.6 }: { to: number; suffix?: str
 /* -------------------------------------------------------------------------- */
 
 function downloadDummyZip() {
-  // Minimal, valid empty ZIP file bytes ("PK\5\6" empty archive)
-  const bytes = new Uint8Array([
-    0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  ]);
-  const blob = new Blob([bytes], { type: "application/zip" });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url;
+  a.href = "/download/applyonce-extension.zip";
   a.download = "applyonce-ai-extension.zip";
   document.body.appendChild(a);
   a.click();
   a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function scrollToId(id: string) {
