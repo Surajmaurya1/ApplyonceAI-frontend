@@ -56,17 +56,19 @@ export const Route = createFileRoute("/")({
 
 function Logo({ className = "h-8 w-8" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 40 40" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ff2a34" />
-          <stop offset="100%" stopColor="#8a0007" />
-        </linearGradient>
-      </defs>
-      <rect x="2" y="2" width="36" height="36" rx="10" fill="url(#lg1)" />
-      <path d="M12 27 L20 11 L28 27" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <path d="M15.5 22 H24.5" stroke="white" strokeWidth="2.6" strokeLinecap="round" />
-    </svg>
+    <>
+    </>
+    // <svg viewBox="0 0 40 40" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    //   <defs>
+    //     <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1">
+    //       <stop offset="0%" stopColor="#ff2a34" />
+    //       <stop offset="100%" stopColor="#8a0007" />
+    //     </linearGradient>
+    //   </defs>
+    //   <rect x="2" y="2" width="36" height="36" rx="10" fill="url(#lg1)" />
+    //   <path d="M12 27 L20 11 L28 27" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    //   <path d="M15.5 22 H24.5" stroke="white" strokeWidth="2.6" strokeLinecap="round" />
+    // </svg>
   );
 }
 
@@ -96,7 +98,7 @@ function Counter({ to, suffix = "", duration = 1.6 }: { to: number; suffix?: str
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Programmatic ZIP download (dummy extension template)                      */
+/*  Programmatic ZIP download                     */
 /* -------------------------------------------------------------------------- */
 
 function downloadDummyZip() {
@@ -1273,12 +1275,12 @@ function Footer() {
           <span className="font-semibold text-foreground">ApplyOnce <span className="text-primary">AI</span></span>
         </div>
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground">
+          <a href="https://github.com/Surajmaurya1/ApplyonceAI-frontend" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground">
             <Github className="h-3.5 w-3.5" /> GitHub
           </a>
           <a href="#" className="hover:text-foreground">Privacy Policy</a>
           <a href="#" className="hover:text-foreground">Terms of Service</a>
-          <a href="mailto:hello@applyonce.ai" className="hover:text-foreground">Contact</a>
+          <a href="https://www.linkedin.com/in/suraj-maurya-33a91325a/" className="hover:text-foreground">Contact</a>
         </nav>
         <div>© {new Date().getFullYear()} ApplyOnce AI. All rights reserved.</div>
       </div>
