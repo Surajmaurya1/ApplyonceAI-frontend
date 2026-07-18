@@ -1278,8 +1278,6 @@ function Footer() {
           <a href="https://github.com/Surajmaurya1/ApplyonceAI-frontend" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground">
             <Github className="h-3.5 w-3.5" /> GitHub
           </a>
-          <a href="#" className="hover:text-foreground">Privacy Policy</a>
-          <a href="#" className="hover:text-foreground">Terms of Service</a>
           <a href="https://www.linkedin.com/in/suraj-maurya-33a91325a/" className="hover:text-foreground">Contact</a>
         </nav>
         <div>© {new Date().getFullYear()} ApplyOnce AI. All rights reserved.</div>

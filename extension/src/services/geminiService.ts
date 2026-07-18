@@ -7,7 +7,7 @@ import { RESUME_PARSE_PROMPT, AUTOFILL_MAPPING_PROMPT } from "@/ai/prompts";
 import type { UserProfile, FormField, AutofillMapping } from "@/types";
 
 const MAX_RETRIES = 3;
-const MODEL_NAME = "openai/gpt-oss-20b:free";
+const MODEL_NAME = "tencent/hy3:free";
 
 function getApiKey(): string {
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
