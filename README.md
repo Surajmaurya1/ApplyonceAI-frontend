@@ -1,6 +1,5 @@
 # ApplyOnce AI — Enterprise-Grade Universal Application Autofill Engine
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
 [![Chrome Extension](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-orange.svg)](https://developer.chrome.com/docs/extensions/)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-OpenRouter%20gpt--oss--20b-blueviolet.svg)](https://openrouter.ai/)
