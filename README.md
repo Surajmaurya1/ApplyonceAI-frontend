@@ -1,4 +1,4 @@
-﻿# ApplyOnce AI — Secure AI-Powered Universal Application Autofill Engine
+# ApplyOnce AI — Secure AI-Powered Universal Application Autofill Engine
 
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
 [![Chrome Extension](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-orange.svg)](https://developer.chrome.com/docs/extensions/)
@@ -30,44 +30,40 @@ ApplyOnce AI uses a **secure backend-first architecture**. The Chrome extension 
 
 ```mermaid
 graph TD
-    subgraph Browser["Browser / Chrome Extension"]
-        User([User Resume PDF]) -->|Upload| ExtPopup[Extension Popup UI]
-        ExtPopup -->|Extract Text locally| PDFService[pdf.js Parser - Web Worker]
-        ExtStorage[(chrome.storage.local\nJWT tokens + Profile Cache)]
-        ExtContent[Content Script\nDOM Scraper and Form Filler]
-    end
+    User([User Resume PDF]) -->|Upload| ExtPopup[Extension Popup UI]
+    ExtPopup -->|Extract text locally| PDFService[pdf.js Parser]
+    PDFService -->|Raw text| ExtPopup
 
-    subgraph Backend["ApplyOnce Backend - Railway"]
-        API[Fastify REST API\n/api/v1]
-        AuthMiddleware[JWT Auth Middleware]
-        AIRouter[AI Router Service]
-        subgraph Providers["AI Providers"]
-            Gemini[Google Gemini]
-            Groq[Groq]
-            OpenRouter[OpenRouter]
-            Cerebras[Cerebras]
-        end
-        API --> AuthMiddleware
-        AuthMiddleware --> AIRouter
-        AIRouter -->|Primary| Gemini
-        AIRouter -->|Fallback| Groq
-        AIRouter -->|Fallback| OpenRouter
-        AIRouter -->|Fallback| Cerebras
-    end
+    ExtPopup -->|POST /auth/login| API
+    API -->|JWT Tokens| ExtStorage[(chrome.storage.local)]
+    ExtStorage -->|Read tokens + profile| ExtPopup
 
-    ExtPopup -->|POST /auth/login or /auth/register| API
-    API -->|JWT Access + Refresh Tokens| ExtStorage
-    PDFService -->|Raw Resume Text| ExtPopup
-    ExtPopup -->|POST /resume/upload + Bearer JWT| API
+    ExtPopup -->|POST /resume/upload + JWT| API
     API -->|Structured Profile JSON| ExtPopup
-    ExtPopup -->|Save Profile| ExtStorage
-    ExtStorage -->|Read Profile| ExtPopup
+    ExtPopup -->|Cache profile| ExtStorage
 
-    AnySite[External Job Portal / Form] -->|Detected Fields| ExtContent
+    AnySite[Job Portal / Form] -->|Form fields detected| ExtContent[Content Script]
     ExtPopup -->|Trigger Autofill| ExtContent
-    ExtContent -->|POST /ai/autofill + Profile + Fields + Bearer JWT| API
+    ExtContent -->|POST /ai/autofill + JWT| API
     API -->|Field Mapping JSON| ExtContent
-    ExtContent -->|Simulated Input Events| AnySite
+    ExtContent -->|Fill form fields| AnySite
+
+    subgraph Chrome Extension
+        ExtPopup
+        PDFService
+        ExtStorage
+        ExtContent
+    end
+
+    subgraph Backend - Railway
+        API[Fastify API]
+        API --> AuthMW[JWT Middleware]
+        AuthMW --> AIRouter[AI Router]
+        AIRouter -->|Primary| Gemini[Google Gemini]
+        AIRouter -->|Fallback 1| Groq[Groq]
+        AIRouter -->|Fallback 2| OpenRouter[OpenRouter]
+        AIRouter -->|Fallback 3| Cerebras[Cerebras]
+    end
 ```
 
 ---
