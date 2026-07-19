@@ -3,6 +3,9 @@
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
 [![Chrome Extension](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-orange.svg)](https://developer.chrome.com/docs/extensions/)
 [![AI Engine](https://img.shields.io/badge/AI%20Engine-OpenRouter%20gpt--oss--20b-blueviolet.svg)](https://openrouter.ai/)
+[![Pitch Deck](https://img.shields.io/badge/Pitch%20Deck-View%20Deck-ff69b4.svg)](https://applyonce-ai-pitchdesk.vercel.app/)
+
+**Live Pitch Deck:** [ApplyOnce AI Pitch Deck](https://applyonce-ai-pitchdesk.vercel.app/)
 
 ApplyOnce AI is a secure, privacy-first universal profile parsing and browser form-filling automation engine. The platform combines dynamic in-browser PDF parsing with LLM semantic extraction to construct structure-validated candidate profiles, enabling seamless autofill workflows across any online application portal.
 
