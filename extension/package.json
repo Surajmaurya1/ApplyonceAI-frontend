@@ -1,15 +1,15 @@
 {
   "name": "applyonce-ai-extension",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite build --watch",
+    "dev": "vite",
     "build": "vite build",
+    "build:prod": "bash scripts/build-extension.sh",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-scroll-area": "^1.2.0",

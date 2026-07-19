@@ -1,130 +1,84 @@
+// extension/src/services/geminiService.ts
 // ─────────────────────────────────────────────
-//  ApplyOnce AI – Multi-Provider AI Service
+//  ApplyOnce AI – Backend API Service
+//
+//  This file previously called AI providers directly using embedded API keys.
+//  It now calls the ApplyOnce backend API using JWT authentication.
+//
+//  NO AI API KEYS exist in this file or anywhere in the extension.
+//  The backend holds all provider keys securely.
 // ─────────────────────────────────────────────
-import { RESUME_PARSE_PROMPT, AUTOFILL_MAPPING_PROMPT } from "@/ai/prompts";
-import type { UserProfile, FormField, AutofillMapping } from "@/types";
-import { ai } from "@/lib/ai";
+import { apiRequest, uploadFile } from "../lib/apiClient.js";
+import type { UserProfile, FormField, AutofillMapping } from "../types/index.js";
 
-const MAX_RETRIES = 3;
-
-/**
- * Strips markdown code fences from a string to extract raw JSON.
- */
-function stripMarkdown(text: string): string {
-  return text
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/\s*```\s*$/i, "")
-    .trim();
+interface ResumeUploadResponse {
+  message: string;
+  profile: UserProfile;
 }
 
-/**
- * Attempts to parse JSON from response, stripping markdown if needed.
- */
-function parseJSON<T>(raw: string): T {
-  const clean = stripMarkdown(raw);
-  return JSON.parse(clean) as T;
+interface ResumeAnalyzeResponse {
+  message: string;
+  profile: UserProfile;
+}
+
+interface AutofillResponse {
+  mapping: AutofillMapping;
 }
 
 /**
  * Parses resume text into a structured UserProfile.
- * Retries up to MAX_RETRIES times on invalid JSON.
+ *
+ * If `input` is a File, it uploads the PDF to the backend (server-side PDF extraction + AI).
+ * If `input` is a string, it sends the extracted text to the backend for AI parsing.
+ *
+ * The function name is preserved for backward compatibility.
  */
 export async function parseResumeToProfile(
-  resumeText: string
+  input: File | string
 ): Promise<UserProfile> {
-  let lastError: Error | null = null;
+  let response: ResumeUploadResponse | ResumeAnalyzeResponse;
 
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const prompt = RESUME_PARSE_PROMPT(resumeText);
-      const res = await ai.generateText(prompt);
-      const raw = res.text;
-      const profile = parseJSON<UserProfile>(raw);
-
-      // Embed the original resume text for context
-      profile.resumeText = resumeText;
-
-      // Basic validation
-      if (!profile.personalInfo) {
-        throw new Error("Profile missing personalInfo");
-      }
-
-      return profile;
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
-      console.warn(`[ApplyOnce] Resume parse attempt ${attempt} failed:`, lastError.message);
-
-      if (attempt < MAX_RETRIES) {
-        // Small delay before retry
-        await new Promise((r) => setTimeout(r, 500 * attempt));
-      }
-    }
+  if (input instanceof File) {
+    // Upload PDF directly — backend handles extraction and AI parsing
+    response = await uploadFile<ResumeUploadResponse>("/api/v1/resume/upload", input);
+  } else {
+    // Send extracted text — backend handles AI parsing
+    response = await apiRequest<ResumeAnalyzeResponse>("/api/v1/resume/analyze", {
+      method: "POST",
+      body: JSON.stringify({ resumeText: input }),
+    });
   }
 
-  throw new Error(
-    `Failed to parse resume after ${MAX_RETRIES} attempts. ${lastError?.message ?? ""}`
-  );
+  if (!response.profile?.personalInfo) {
+    throw new Error("Backend returned an invalid profile structure.");
+  }
+
+  return response.profile;
 }
 
 /**
  * Generates an autofill mapping from a profile and detected form fields.
- * Returns a Record<fieldId/name, value>.
- * Retries up to MAX_RETRIES times on invalid JSON.
+ *
+ * The function signature is preserved for backward compatibility with useAutofill.ts.
+ * Internally, this now calls the backend instead of calling AI providers directly.
  */
 export async function generateAutofillMapping(
   profile: UserProfile,
   fields: FormField[]
 ): Promise<AutofillMapping> {
-  if (fields.length === 0) {
-    return {};
+  if (fields.length === 0) return {};
+
+  // Strip resumeText to reduce payload size
+  const profileForBackend = { ...profile, resumeText: undefined };
+
+  const response = await apiRequest<AutofillResponse>("/api/v1/ai/autofill", {
+    method: "POST",
+    body: JSON.stringify({ profile: profileForBackend, fields }),
+  });
+
+  if (!response.mapping || typeof response.mapping !== "object") {
+    throw new Error("Backend returned an invalid autofill mapping.");
   }
 
-  // Only send minimal field info to save tokens
-  const fieldSummary = fields.map((f) => ({
-    id: f.id,
-    name: f.name,
-    type: f.type,
-    label: f.label,
-    placeholder: f.placeholder,
-    ariaLabel: f.ariaLabel,
-    options: f.options,
-  }));
-
-  // Strip resumeText to reduce token usage
-  const profileForAI = { ...profile, resumeText: undefined };
-
-  let lastError: Error | null = null;
-
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const prompt = AUTOFILL_MAPPING_PROMPT(
-        JSON.stringify(profileForAI, null, 2),
-        JSON.stringify(fieldSummary, null, 2)
-      );
-
-      const res = await ai.generateText(prompt);
-      const raw = res.text;
-      const mapping = parseJSON<AutofillMapping>(raw);
-
-      if (typeof mapping !== "object" || mapping === null) {
-        throw new Error("Mapping is not a valid object");
-      }
-
-      return mapping;
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
-      console.warn(
-        `[ApplyOnce] Autofill mapping attempt ${attempt} failed:`,
-        lastError.message
-      );
-
-      if (attempt < MAX_RETRIES) {
-        await new Promise((r) => setTimeout(r, 500 * attempt));
-      }
-    }
-  }
-
-  throw new Error(
-    `Unable to generate mapping. Please try again. ${lastError?.message ?? ""}`
-  );
+  return response.mapping;
 }

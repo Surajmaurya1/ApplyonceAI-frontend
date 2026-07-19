@@ -1,0 +1,43 @@
+name: Security Scan
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  gitleaks:
+    name: Gitleaks Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  extension-dist-scan:
+    name: Scan Extension Build Output
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if dist exists and scan
+        run: |
+          if [ -d "extension/dist" ]; then
+            patterns=("AIza" "gsk_" "csk-" "sk-or-v1-" "GEMINI_API_KEY" "GROQ_API_KEY" "CEREBRAS_API_KEY" "OPENROUTER_API_KEY")
+            for p in "${patterns[@]}"; do
+              if grep -r "$p" extension/dist/ --include="*.js" 2>/dev/null; then
+                echo "FAIL: Secret pattern '$p' found in extension/dist/"
+                exit 1
+              fi
+            done
+            echo "PASS: No secrets in extension/dist/"
+          else
+            echo "SKIP: extension/dist/ not found (not built yet)"
+          fi

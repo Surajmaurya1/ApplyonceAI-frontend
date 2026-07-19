@@ -1,0 +1,58 @@
+name: Build and Package Extension
+
+on:
+  push:
+    branches: [main]
+    paths: ["extension/**"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: extension/package-lock.json
+
+      - name: Install dependencies
+        working-directory: extension
+        run: npm ci
+
+      - name: Create production .env (only VITE_API_URL, no AI keys)
+        working-directory: extension
+        run: echo "VITE_API_URL=https://api.applyonce.ai" > .env
+
+      - name: Build
+        working-directory: extension
+        run: npm run build
+
+      - name: Scan for secrets
+        working-directory: extension
+        run: |
+          patterns=("AIza" "gsk_" "csk-" "sk-or-v1-" "GEMINI_API_KEY" "GROQ_API_KEY" "CEREBRAS_API_KEY" "OPENROUTER_API_KEY" "generativelanguage.googleapis.com" "api.groq.com")
+          for p in "${patterns[@]}"; do
+            if grep -r "$p" dist/ --include="*.js" 2>/dev/null; then
+              echo "FAIL: '$p' found in dist/"
+              exit 1
+            fi
+          done
+          echo "PASS: No secrets in build"
+
+      - name: Package
+        working-directory: extension
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          cd dist && zip -r "../applyonce-extension-v${VERSION}.zip" . -x "*.map"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-zip
+          path: extension/applyonce-extension-*.zip
+          retention-days: 30

@@ -2,22 +2,28 @@
 //  ApplyOnce AI – AI Status Badge
 // ─────────────────────────────────────────────
 import React, { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "./ui/badge.tsx";
 import { Wifi, WifiOff } from "lucide-react";
-import { ai } from "@/lib/ai";
 
 export const StatusBadge: React.FC = () => {
   const [status, setStatus] = useState<"checking" | "ok" | "error">("checking");
-  const [primaryProvider, setPrimaryProvider] = useState<string>("");
 
   useEffect(() => {
-    const active = ai.getConfiguredProviders();
-    if (active.length > 0) {
-      setStatus("ok");
-      setPrimaryProvider(active[0].name);
-    } else {
-      setStatus("error");
-    }
+    const checkBackend = async () => {
+      try {
+        const apiUrl = (import.meta.env.VITE_API_URL as string) ?? "http://localhost:3001";
+        const response = await fetch(`${apiUrl}/health`);
+        if (response.ok) {
+          setStatus("ok");
+        } else {
+          setStatus("error");
+        }
+      } catch (err) {
+        setStatus("error");
+      }
+    };
+
+    checkBackend();
   }, []);
 
   if (status === "checking") {
@@ -33,7 +39,7 @@ export const StatusBadge: React.FC = () => {
     return (
       <Badge variant="destructive" className="gap-1 text-xs">
         <WifiOff className="w-3 h-3" />
-        AI Key Missing
+        Backend Offline
       </Badge>
     );
   }
@@ -42,7 +48,7 @@ export const StatusBadge: React.FC = () => {
     <Badge variant="success" className="gap-1 text-xs">
       <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
       <Wifi className="w-3 h-3" />
-      AI Ready ({primaryProvider})
+      AI Ready (Backend)
     </Badge>
   );
 };
