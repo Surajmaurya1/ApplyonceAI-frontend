@@ -6,9 +6,9 @@ import { GroqProvider } from "./providers/groq.js";
 import { CerebrasProvider } from "./providers/cerebras.js";
 import { OpenRouterProvider } from "./providers/openrouter.js";
 import {
-  AIProvider, AIResponse, RequestOptions,
   RateLimitError, TimeoutError, ProviderUnavailableError,
 } from "./providers/types.js";
+import type { AIProvider, AIResponse, RequestOptions } from "./providers/types.js";
 import { env } from "../config/env.js";
 
 // Build provider list based on which keys are configured.
