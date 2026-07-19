@@ -49,6 +49,7 @@ export async function apiRequest<T>(
     const body = await response.json().catch(() => ({})) as {
       code?: string;
       message?: string;
+      error?: string;
     };
 
     if (body.code === "TOKEN_EXPIRED") {
@@ -67,15 +68,16 @@ export async function apiRequest<T>(
       }
     }
 
-    throw new ApiRequestError(401, body.message ?? "Unauthorized. Please log in.", body.code);
+    throw new ApiRequestError(401, body.message ?? body.error ?? "Unauthorized. Please log in.", body.code);
   }
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({ message: response.statusText })) as {
       message?: string;
+      error?: string;
       code?: string;
     };
-    throw new ApiRequestError(response.status, body.message ?? "Request failed", body.code);
+    throw new ApiRequestError(response.status, body.message ?? body.error ?? "Request failed", body.code);
   }
 
   return response.json() as Promise<T>;
@@ -99,8 +101,9 @@ export async function uploadFile<T>(path: string, file: File): Promise<T> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({ message: response.statusText })) as {
       message?: string;
+      error?: string;
     };
-    throw new ApiRequestError(response.status, body.message ?? "Upload failed");
+    throw new ApiRequestError(response.status, body.message ?? body.error ?? "Upload failed");
   }
 
   return response.json() as Promise<T>;

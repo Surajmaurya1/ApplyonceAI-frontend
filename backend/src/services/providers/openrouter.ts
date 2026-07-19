@@ -8,7 +8,7 @@ import {
 
 export class OpenRouterProvider implements AIProvider {
   readonly name = "OpenRouter";
-  private readonly model = "mistralai/mistral-7b-instruct:free";
+  private readonly model = "openrouter/free";
   private readonly baseUrl = "https://openrouter.ai/api/v1/chat/completions";
 
   async generateText(prompt: string, options?: RequestOptions): Promise<AIResponse> {

@@ -18,28 +18,65 @@ interface UseAutofillReturn {
 }
 
 /**
- * Sends a message to the active tab's content script.
+ * Ensures the content script is injected into the tab, then sends a message.
+ * This handles file:// pages and any tab where the content script hasn't loaded yet.
  */
 async function sendMessageToActiveTab<T>(
   message: { type: string; payload?: unknown }
 ): Promise<T> {
   return new Promise((resolve, reject) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       const tab = tabs[0];
       if (!tab?.id) {
-        reject(new Error("No active tab found"));
+        reject(new Error("No active tab found. Please make sure a web page is open."));
         return;
       }
-      chrome.tabs.sendMessage(tab.id, message, (response) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+
+      const tabId = tab.id;
+
+      // First try to PING the content script to see if it's already alive
+      chrome.tabs.sendMessage(tabId, { type: "PING" }, (pingResponse) => {
+        const isAlive = !chrome.runtime.lastError && pingResponse?.success;
+
+        const doSend = () => {
+          chrome.tabs.sendMessage(tabId, message, (response) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+            } else {
+              resolve(response as T);
+            }
+          });
+        };
+
+        if (isAlive) {
+          // Content script is already running — send the message directly
+          doSend();
         } else {
-          resolve(response as T);
+          // Content script is not running — inject it programmatically first
+          chrome.scripting.executeScript(
+            { target: { tabId }, files: ["content.js"] },
+            () => {
+              if (chrome.runtime.lastError) {
+                reject(
+                  new Error(
+                    `Could not inject into this page. ` +
+                    `If this is a local file (file://), please go to chrome://extensions → ` +
+                    `ApplyOnce AI → Details → enable "Allow access to file URLs", ` +
+                    `then refresh the page and try again.`
+                  )
+                );
+                return;
+              }
+              // Give the content script a moment to initialize
+              setTimeout(doSend, 150);
+            }
+          );
         }
       });
     });
   });
 }
+
 
 export function useAutofill(): UseAutofillReturn {
   const [step, setStep] = useState<LoadingStep>("idle");
