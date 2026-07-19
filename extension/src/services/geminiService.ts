@@ -1,23 +1,11 @@
 // ─────────────────────────────────────────────
-//  ApplyOnce AI – OpenRouter AI Service
-//  Replaces Gemini with OpenRouter API using
-//  openai/gpt-oss-20b:free model.
+//  ApplyOnce AI – Multi-Provider AI Service
 // ─────────────────────────────────────────────
 import { RESUME_PARSE_PROMPT, AUTOFILL_MAPPING_PROMPT } from "@/ai/prompts";
 import type { UserProfile, FormField, AutofillMapping } from "@/types";
+import { ai } from "@/lib/ai";
 
 const MAX_RETRIES = 3;
-const MODEL_NAME = "tencent/hy3:free";
-
-function getApiKey(): string {
-  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-  if (!apiKey || apiKey === "YOUR_OPENROUTER_API_KEY_HERE") {
-    throw new Error(
-      "OpenRouter API key not configured. Please set VITE_OPENROUTER_API_KEY in extension/.env"
-    );
-  }
-  return apiKey;
-}
 
 /**
  * Strips markdown code fences from a string to extract raw JSON.
@@ -30,50 +18,11 @@ function stripMarkdown(text: string): string {
 }
 
 /**
- * Attempts to parse JSON from OpenRouter response, stripping markdown if needed.
+ * Attempts to parse JSON from response, stripping markdown if needed.
  */
 function parseJSON<T>(raw: string): T {
   const clean = stripMarkdown(raw);
   return JSON.parse(clean) as T;
-}
-
-/**
- * Calls OpenRouter API with a prompt and returns the text response.
- */
-async function callOpenRouter(prompt: string): Promise<string> {
-  const apiKey = getApiKey();
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://applyonce.ai", // Optional, for OpenRouter rankings
-      "X-Title": "ApplyOnce AI Extension", // Optional, for OpenRouter rankings
-    },
-    body: JSON.stringify({
-      model: MODEL_NAME,
-      messages: [
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.1,
-    })
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`OpenRouter API error (${response.status}): ${errorBody || response.statusText}`);
-  }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error("Empty response from OpenRouter API.");
-  }
-
-  return content;
 }
 
 /**
@@ -88,7 +37,8 @@ export async function parseResumeToProfile(
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       const prompt = RESUME_PARSE_PROMPT(resumeText);
-      const raw = await callOpenRouter(prompt);
+      const res = await ai.generateText(prompt);
+      const raw = res.text;
       const profile = parseJSON<UserProfile>(raw);
 
       // Embed the original resume text for context
@@ -152,7 +102,8 @@ export async function generateAutofillMapping(
         JSON.stringify(fieldSummary, null, 2)
       );
 
-      const raw = await callOpenRouter(prompt);
+      const res = await ai.generateText(prompt);
+      const raw = res.text;
       const mapping = parseJSON<AutofillMapping>(raw);
 
       if (typeof mapping !== "object" || mapping === null) {

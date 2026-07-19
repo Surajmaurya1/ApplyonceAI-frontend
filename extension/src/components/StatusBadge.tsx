@@ -4,16 +4,19 @@
 import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Wifi, WifiOff } from "lucide-react";
+import { ai } from "@/lib/ai";
 
 export const StatusBadge: React.FC = () => {
   const [status, setStatus] = useState<"checking" | "ok" | "error">("checking");
+  const [primaryProvider, setPrimaryProvider] = useState<string>("");
 
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-    if (!apiKey || apiKey === "YOUR_OPENROUTER_API_KEY_HERE") {
-      setStatus("error");
-    } else {
+    const active = ai.getConfiguredProviders();
+    if (active.length > 0) {
       setStatus("ok");
+      setPrimaryProvider(active[0].name);
+    } else {
+      setStatus("error");
     }
   }, []);
 
@@ -30,7 +33,7 @@ export const StatusBadge: React.FC = () => {
     return (
       <Badge variant="destructive" className="gap-1 text-xs">
         <WifiOff className="w-3 h-3" />
-        API Key Missing
+        AI Key Missing
       </Badge>
     );
   }
@@ -39,7 +42,7 @@ export const StatusBadge: React.FC = () => {
     <Badge variant="success" className="gap-1 text-xs">
       <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
       <Wifi className="w-3 h-3" />
-      OpenRouter Ready
+      AI Ready ({primaryProvider})
     </Badge>
   );
 };
