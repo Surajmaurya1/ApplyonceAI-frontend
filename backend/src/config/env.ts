@@ -22,8 +22,15 @@ const envSchema = z.object({
   CEREBRAS_API_KEY: z.string().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
 
-  // CORS — comma-separated list of allowed origins
-  ALLOWED_ORIGINS: z.string().default("http://localhost:5173,chrome-extension://"),
+  // CORS — comma-separated list of allowed origins.
+  // The "chrome-extension://" entry is a prefix that allows the unpacked
+  // Chrome extension (no specific extension ID is hardcoded, since unpacked
+  // extension IDs are not published to the Chrome Web Store).
+  ALLOWED_ORIGINS: z
+    .string()
+    .default(
+      "http://localhost:5173,https://applyonce-ai-frontend.vercel.app,chrome-extension://"
+    ),
 
   // Rate limiting
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),

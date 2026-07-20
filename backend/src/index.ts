@@ -46,11 +46,13 @@ async function buildApp() {
   });
 
   // Security: CORS — allow only specified origins
+  // The unpacked Chrome extension is allowed via the "chrome-extension://"
+  // prefix in ALLOWED_ORIGINS (no specific extension ID is hardcoded, since
+  // unpacked extension IDs are not published to the Chrome Web Store).
   const allowedOrigins = env.ALLOWED_ORIGINS.split(",").map((o) => o.trim());
   await server.register(cors, {
     origin: (origin, callback) => {
       if (!origin) { callback(null, true); return; } // curl, server-to-server
-      if (origin.startsWith("chrome-extension://")) { callback(null, true); return; }
       if (allowedOrigins.some((o) => origin === o || origin.startsWith(o))) {
         callback(null, true);
         return;
